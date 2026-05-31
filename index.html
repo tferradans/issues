@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>What's been said before</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f4;
+      --bg3: #eeede9;
+      --text: #1c1c1a;
+      --text2: #5c5b57;
+      --text3: #9c9b96;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --info-bg: #e6f1fb;
+      --info-text: #0c447c;
+      --info-border: rgba(24,95,165,0.3);
+      --warn-bg: #faeeda;
+      --warn-text: #633806;
+      --warn-border: rgba(186,117,23,0.3);
+      --danger-bg: #fcebeb;
+      --danger-text: #791f1f;
+      --danger-border: rgba(162,45,45,0.3);
+      --safe-bg: #eaf3de;
+      --safe-text: #27500a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #262624;
+        --bg3: #313130;
+        --text: #f0efeb;
+        --text2: #a8a79f;
+        --text3: #686760;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --info-bg: #0c2440;
+        --info-text: #85b7eb;
+        --info-border: rgba(55,138,221,0.3);
+        --warn-bg: #2a1c08;
+        --warn-text: #fac775;
+        --warn-border: rgba(186,117,23,0.3);
+        --danger-bg: #2a0c0c;
+        --danger-text: #f09595;
+        --danger-border: rgba(226,75,74,0.3);
+        --safe-bg: #0f2005;
+        --safe-text: #97c459;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: env(safe-area-inset-top, 0) 16px env(safe-area-inset-bottom, 80px);
+      padding-top: max(env(safe-area-inset-top, 0px), 16px);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0 12px;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .header-title { font-size: 17px; font-weight: 600; }
+    .header-meta { font-size: 12px; color: var(--text3); }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex; gap: 6px; margin-bottom: 12px; align-items: center;
+    }
+    .spacer { flex: 1; }
+
+    /* Buttons base */
+    button {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border2);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    button:active { opacity: 0.7; }
+    button.active { background: var(--bg3); }
+    button.primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+    button.pill { border-radius: 99px; font-size: 13px; padding: 5px 12px; }
+    .icon-btn {
+      width: 32px; height: 32px; padding: 0; border: none;
+      background: transparent; color: var(--text3); border-radius: 6px;
+      justify-content: center;
+    }
+    .icon-btn:hover, .icon-btn:active { background: var(--bg3); color: var(--text); }
+    .icon-btn i { font-size: 17px; }
+    .full-btn { width: 100%; justify-content: center; }
+
+    /* Skim banner */
+    .skim-banner {
+      background: var(--info-bg); color: var(--info-text);
+      border-radius: var(--radius-sm); padding: 10px 12px;
+      font-size: 13px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .card.dormant { opacity: 0.45; }
+    .card.urgent { border-color: var(--warn-border); border-width: 1px; }
+    .card.tripped { background: var(--danger-bg); border-color: var(--danger-border); border-width: 1px; }
+
+    .card-top { display: flex; gap: 10px; align-items: flex-start; }
+    .live-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      margin-top: 6px; flex-shrink: 0; cursor: pointer;
+      background: var(--border2);
+      transition: background 0.15s;
+    }
+    .live-dot.live { background: #e24b4a; }
+
+    .card-main { flex: 1; min-width: 0; }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-context { font-size: 13px; color: var(--text2); line-height: 1.45; }
+
+    .card-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+    /* Timer badge */
+    .timer-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 99px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      background: var(--bg2); color: var(--text2);
+      border: 0.5px solid var(--border);
+    }
+    .timer-badge.urgent { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+    .timer-badge.tripped { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+
+    /* Pairs */
+    .pairs { margin-top: 10px; padding-top: 10px; border-top: 0.5px dashed var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .pair { font-size: 13px; line-height: 1.5; padding: 8px 10px; background: var(--bg2); border-radius: var(--radius-sm); }
+    .pair-tell { color: var(--text2); }
+    .pair-tell::before { content: "tell: "; color: var(--text3); font-style: italic; }
+    .pair-nudge { color: var(--text); margin-top: 3px; font-weight: 500; }
+    .pair-nudge::before { content: "→ "; color: var(--info-text); font-weight: 400; }
+
+    /* Log */
+    .log-section { margin-top: 8px; font-size: 12px; color: var(--text3); }
+    .log-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 4px; }
+    .log-list { list-style: none; margin-top: 8px; }
+    .log-list li {
+      padding: 6px 0; border-bottom: 0.5px solid var(--border);
+      display: flex; gap: 8px; align-items: baseline;
+    }
+    .log-tag {
+      font-size: 11px; padding: 1px 7px; border-radius: 4px;
+      font-weight: 600; flex-shrink: 0;
+    }
+    .log-tag.reset { background: var(--info-bg); color: var(--info-text); }
+    .log-tag.tripped { background: var(--danger-bg); color: var(--danger-text); }
+    .log-tag.came-up { background: var(--warn-bg); color: var(--warn-text); }
+    .log-when { color: var(--text2); font-size: 12px; }
+
+    /* Form */
+    .form {
+      background: var(--bg2);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 8px;
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form label {
+      display: block; font-size: 12px; color: var(--text2);
+      margin-bottom: 5px; font-weight: 500;
+    }
+    .form input[type=text], .form textarea, .form select {
+      width: 100%;
+      background: var(--bg);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .form textarea { min-height: 60px; resize: vertical; }
+    .form input:focus, .form textarea:focus, .form select:focus {
+      outline: none; border-color: var(--info-text);
+    }
+
+    .pair-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+    .pair-row > div { flex: 1; min-width: 0; }
+    .pair-row textarea { min-height: 52px; }
+    .pair-row textarea + textarea { margin-top: 6px; }
+
+    .timer-config { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .timer-config select { flex: 1; min-width: 0; }
+    .threshold-wrap { display: flex; align-items: center; gap: 6px; }
+    .threshold-wrap input { width: 64px; }
+    .threshold-wrap span { font-size: 13px; color: var(--text3); }
+
+    .form-actions { display: flex; gap: 8px; }
+    .form-actions button { flex: 1; justify-content: center; padding: 10px; }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: max(env(safe-area-inset-bottom, 16px), 16px);
+      right: 16px;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      font-size: 26px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      z-index: 100;
+      padding: 0;
+    }
+    .fab i { font-size: 24px; }
+
+    .skim-mode .card.dormant { display: none; }
+    .skim-mode .card-right .icon-btn,
+    .skim-mode .live-dot,
+    .skim-mode .log-section { display: none; }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <span class="header-title">what's been said before</span>
+    <span class="header-meta" id="meta">0 issues</span>
+  </div>
+
+  <div id="skim-banner" class="skim-banner" style="display:none">
+    <span><i class="ti ti-eye" style="vertical-align:-2px"></i> skim mode — live issues only</span>
+    <button class="icon-btn" onclick="toggleSkim()" aria-label="exit skim"><i class="ti ti-x"></i></button>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <button class="pill filter-btn active" data-filter="all">all</button>
+    <button class="pill filter-btn" data-filter="live">live</button>
+    <button class="pill filter-btn" data-filter="dormant">dormant</button>
+    <div class="spacer"></div>
+    <button class="pill" onclick="toggleSkim()"><i class="ti ti-eye" style="font-size:14px"></i> skim</button>
+  </div>
+
+  <div id="list"></div>
+  <div id="form" style="display:none"></div>
+  <div style="height:72px"></div>
+</div>
+
+<button class="fab" id="fab" onclick="showAddForm()" aria-label="add issue">
+  <i class="ti ti-plus"></i>
+</button>
+
+<script>
+const KEY = 'issues_list_v2';
+let state = { issues: [], filter: 'all', skim: false, editingId: null, expandedLogs: {} };
+
+function load() {
+  try { const r = JSON.parse(localStorage.getItem(KEY)); if (r && r.issues) state.issues = r.issues; } catch(e) {}
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ issues: state.issues })); } catch(e) {} }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+function fmtDateTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' })
+    + ' · '
+    + d.toLocaleTimeString('en-CA', { hour:'numeric', minute:'2-digit', hour12:true });
+}
+function dayDiff(a, b) { return Math.floor((b - a) / 86400000); }
+
+function timerStatus(issue) {
+  if (!issue.timer || !issue.timer.type) return null;
+  const now = Date.now();
+  const start = issue.timer.lastReset || issue.timer.createdAt || now;
+  const elapsed = dayDiff(start, now);
+  if (issue.timer.type === 'countdown') {
+    const remaining = issue.timer.threshold - elapsed;
+    const tripped = remaining <= 0;
+    return {
+      type: 'countdown',
+      remaining: Math.max(0, remaining), elapsed, tripped,
+      urgent: !tripped && remaining <= Math.max(1, Math.floor(issue.timer.threshold * 0.25)),
+      label: tripped ? 'overdue' : `${remaining}d left`,
+      sortValue: remaining
+    };
+  }
+  return { type: 'countup', elapsed, tripped: false, urgent: false, label: `${elapsed}d since`, sortValue: 9999 - elapsed };
+}
+
+function checkTripped() {
+  let changed = false;
+  state.issues.forEach(i => {
+    if (!i.timer || i.timer.type !== 'countdown') return;
+    const s = timerStatus(i);
+    if (s.tripped && !i.timer.trippedLogged) {
+      (i.log = i.log||[]).unshift({ type:'tripped', ts:Date.now() });
+      i.timer.trippedLogged = true;
+      changed = true;
+    }
+  });
+  if (changed) save();
+}
+
+function sorted() {
+  return [...state.issues].sort((a,b) => {
+    const sa = timerStatus(a), sb = timerStatus(b);
+    return (sa ? sa.sortValue : 10000) - (sb ? sb.sortValue : 10000);
+  });
+}
+
+function render() {
+  checkTripped();
+  const app = document.getElementById('app');
+  app.classList.toggle('skim-mode', state.skim);
+  document.getElementById('skim-banner').style.display = state.skim ? 'flex' : 'none';
+  document.getElementById('toolbar').style.display = state.skim ? 'none' : 'flex';
+  document.getElementById('fab').style.display = state.skim ? 'none' : 'flex';
+
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === state.filter));
+
+  let visible = sorted();
+  if (state.skim) visible = visible.filter(i => i.live);
+  else if (state.filter === 'live') visible = visible.filter(i => i.live);
+  else if (state.filter === 'dormant') visible = visible.filter(i => !i.live);
+
+  const liveCount = state.issues.filter(i => i.live).length;
+  document.getElementById('meta').textContent = `${state.issues.length} issue${state.issues.length===1?'':'s'} · ${liveCount} live`;
+
+  const list = document.getElementById('list');
+  if (visible.length === 0) {
+    list.innerHTML = `<div class="empty">${state.skim ? 'nothing live right now.' : state.issues.length===0 ? 'no issues yet.\nadd one when something nags at you.' : 'nothing matches this filter.'}</div>`;
+    return;
+  }
+  list.innerHTML = visible.map(renderCard).join('');
+}
+
+function renderCard(i) {
+  const s = timerStatus(i);
+  let cls = 'card';
+  if (!i.live) cls += ' dormant';
+  else if (s && s.tripped) cls += ' tripped';
+  else if (s && s.urgent) cls += ' urgent';
+
+  const badge = s ? `<button class="timer-badge ${s.tripped?'tripped':s.urgent?'urgent':''}" onclick="resetTimer('${i.id}')" title="${s.type==='countdown'?'tap to reset':'tap to mark it came up'}"><i class="ti ti-${s.type==='countdown'?'hourglass':'clock'}"></i>${s.label}</button>` : '';
+
+  const pairs = (i.pairs||[]).map(p=>`<div class="pair">${p.tell?`<div class="pair-tell">${esc(p.tell)}</div>`:''}${p.nudge?`<div class="pair-nudge">${esc(p.nudge)}</div>`:''}</div>`).join('');
+
+  const log = i.log||[];
+  const exp = state.expandedLogs[i.id];
+  const logHtml = log.length ? `<div class="log-section"><div class="log-toggle" onclick="toggleLog('${i.id}')"><i class="ti ti-chevron-${exp?'down':'right'}" style="font-size:13px"></i>history (${log.length})</div>${exp?`<ul class="log-list">${log.slice(0,50).map(l=>`<li><span class="log-tag ${l.type==='tripped'?'tripped':l.type==='came-up'?'came-up':'reset'}">${l.type==='tripped'?'dropped':l.type==='came-up'?'came up':'reset'}</span><span class="log-when">${fmtDateTime(l.ts)}</span></li>`).join('')}</ul>`:''}</div>` : '';
+
+  return `<div class="${cls}"><div class="card-top"><div class="live-dot ${i.live?'live':''}" onclick="toggleLive('${i.id}')"></div><div class="card-main"><div class="card-title">${esc(i.title)}</div>${i.context?`<div class="card-context">${esc(i.context)}</div>`:''}</div><div class="card-right">${badge}<button class="icon-btn" onclick="editIssue('${i.id}')" aria-label="edit"><i class="ti ti-edit"></i></button><button class="icon-btn" onclick="deleteIssue('${i.id}')" aria-label="delete"><i class="ti ti-trash"></i></button></div></div>${pairs?`<div class="pairs">${pairs}</div>`:''}${logHtml}</div>`;
+}
+
+function toggleLive(id) { const i = state.issues.find(x=>x.id===id); if(i){i.live=!i.live;save();render();} }
+function toggleLog(id) { state.expandedLogs[id]=!state.expandedLogs[id]; render(); }
+
+function resetTimer(id) {
+  const i = state.issues.find(x=>x.id===id);
+  if(!i||!i.timer) return;
+  const now = Date.now();
+  (i.log=i.log||[]).unshift({ type: i.timer.type==='countup'?'came-up':'reset', ts: now });
+  i.timer.lastReset = now;
+  i.timer.trippedLogged = false;
+  save(); render();
+}
+
+function deleteIssue(id) {
+  if(!confirm('Delete this issue and its history?')) return;
+  state.issues = state.issues.filter(x=>x.id!==id);
+  save(); render();
+}
+
+function editIssue(id) { state.editingId=id; renderForm(state.issues.find(x=>x.id===id)); }
+function showAddForm() { state.editingId=null; renderForm(null); }
+
+function renderForm(issue) {
+  const f = document.getElementById('form');
+  const data = issue || { title:'', context:'', pairs:[{tell:'',nudge:''}], timer:null };
+  const pairs = data.pairs&&data.pairs.length ? data.pairs : [{tell:'',nudge:''}];
+  const timer = data.timer||{};
+  f.style.display='block';
+  document.getElementById('fab').style.display='none';
+  document.getElementById('toolbar').style.display='none';
+
+  f.innerHTML = `
+    <div class="form">
+      <div class="form-group">
+        <label>the issue</label>
+        <input type="text" id="f-title" value="${esc(data.title)}" placeholder="e.g. decisions made without me" />
+      </div>
+      <div class="form-group">
+        <label>context — when it shows up</label>
+        <textarea id="f-context" placeholder="e.g. usually after she's already talked to her sister">${esc(data.context)}</textarea>
+      </div>
+      <div class="form-group">
+        <label>tell + nudge pairs</label>
+        <div id="pairs-container">${pairs.map((p,idx)=>pairRowHtml(p,idx)).join('')}</div>
+        <button onclick="addPairRow()" style="width:100%;margin-top:6px;font-size:13px;justify-content:center"><i class="ti ti-plus" style="font-size:14px"></i> add tell/nudge</button>
+      </div>
+      <div class="form-group">
+        <label>timer (optional)</label>
+        <div class="timer-config">
+          <select id="t-type">
+            <option value="">none</option>
+            <option value="countdown" ${timer.type==='countdown'?'selected':''}>countdown — flag if too long passes</option>
+            <option value="countup" ${timer.type==='countup'?'selected':''}>count-up — time since it came up</option>
+          </select>
+          <div class="threshold-wrap" id="t-threshold-wrap" style="${timer.type==='countdown'?'':'display:none'}">
+            <input type="number" id="t-threshold" min="1" max="365" value="${timer.threshold||14}" />
+            <span>days</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button onclick="cancelForm()">cancel</button>
+        <button class="primary" onclick="saveForm()">${issue?'save changes':'add issue'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('t-type').addEventListener('change', e => {
+    document.getElementById('t-threshold-wrap').style.display = e.target.value==='countdown' ? 'flex' : 'none';
+  });
+  document.getElementById('f-title').focus();
+}
+
+function pairRowHtml(pair, idx) {
+  return `<div class="pair-row" data-idx="${idx}"><div><textarea data-field="tell" placeholder="tell — what you tend to do wrong">${esc(pair.tell)}</textarea><textarea data-field="nudge" placeholder="nudge — what to do instead">${esc(pair.nudge)}</textarea></div><button class="icon-btn" style="margin-top:4px" onclick="removePairRow(${idx})" aria-label="remove"><i class="ti ti-x"></i></button></div>`;
+}
+
+function addPairRow() {
+  const c = document.getElementById('pairs-container');
+  const div = document.createElement('div');
+  div.innerHTML = pairRowHtml({tell:'',nudge:''}, c.children.length);
+  c.appendChild(div.firstElementChild);
+}
+
+function removePairRow(idx) {
+  const rows = document.querySelectorAll('.pair-row');
+  if(rows.length<=1) return;
+  rows[idx].remove();
+}
+
+function cancelForm() {
+  document.getElementById('form').style.display='none';
+  document.getElementById('fab').style.display='flex';
+  document.getElementById('toolbar').style.display=state.skim?'none':'flex';
+  state.editingId=null;
+}
+
+function saveForm() {
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ alert('the issue needs a title'); return; }
+  const context = document.getElementById('f-context').value.trim();
+  const pairs = [];
+  document.querySelectorAll('.pair-row').forEach(row => {
+    const tell = row.querySelector('[data-field=tell]').value.trim();
+    const nudge = row.querySelector('[data-field=nudge]').value.trim();
+    if(tell||nudge) pairs.push({tell,nudge});
+  });
+  const ttype = document.getElementById('t-type').value;
+  const threshold = parseInt(document.getElementById('t-threshold').value)||14;
+
+  if(state.editingId) {
+    const i = state.issues.find(x=>x.id===state.editingId);
+    Object.assign(i, {title, context, pairs});
+    if(ttype) {
+      if(!i.timer||i.timer.type!==ttype) i.timer={type:ttype,threshold,lastReset:Date.now(),createdAt:Date.now(),trippedLogged:false};
+      else i.timer.threshold=threshold;
+    } else i.timer=null;
+  } else {
+    state.issues.unshift({
+      id:uid(), title, context, pairs, live:true, log:[],
+      timer: ttype ? {type:ttype,threshold,lastReset:Date.now(),createdAt:Date.now(),trippedLogged:false} : null
+    });
+  }
+  save(); cancelForm(); render();
+}
+
+function toggleSkim() { state.skim=!state.skim; render(); }
+
+document.querySelectorAll('.filter-btn').forEach(b => {
+  b.addEventListener('click', ()=>{ state.filter=b.dataset.filter; render(); });
+});
+
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+load(); render();
+</script>
+</body>
+</html>
