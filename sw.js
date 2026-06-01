@@ -1,9 +1,10 @@
-const CACHE = 'said-before-v1';
+const CACHE = 'issues-app-v1';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css'
+  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css',
+  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/fonts/tabler-icons.woff2'
 ];
 
 self.addEventListener('install', e => {

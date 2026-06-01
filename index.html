@@ -283,6 +283,11 @@
     <button class="pill filter-btn" data-filter="dormant">dormant</button>
     <div class="spacer"></div>
     <button class="pill" onclick="toggleSkim()"><i class="ti ti-eye" style="font-size:14px"></i> skim</button>
+    <button class="pill" onclick="exportData()" title="export save file"><i class="ti ti-download" style="font-size:14px"></i></button>
+    <label class="pill" style="cursor:pointer;border:0.5px solid var(--border2);border-radius:99px;padding:5px 12px;font-size:13px;display:inline-flex;align-items:center;gap:5px" title="import save file">
+      <i class="ti ti-upload" style="font-size:14px"></i>
+      <input type="file" accept=".json" onchange="importData(event)" style="display:none" />
+    </label>
   </div>
 
   <div id="list"></div>
@@ -526,6 +531,43 @@ function toggleSkim() { state.skim=!state.skim; render(); }
 document.querySelectorAll('.filter-btn').forEach(b => {
   b.addEventListener('click', ()=>{ state.filter=b.dataset.filter; render(); });
 });
+
+function exportData() {
+  const payload = JSON.stringify({ issues: state.issues }, null, 2);
+  const blob = new Blob([payload], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `issues-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed.issues || !Array.isArray(parsed.issues)) {
+        alert('That doesn\'t look like a valid backup file.');
+        return;
+      }
+      if (state.issues.length > 0) {
+        if (!confirm(`This will replace your current ${state.issues.length} issue(s) with the backup. Continue?`)) return;
+      }
+      state.issues = parsed.issues;
+      save();
+      render();
+    } catch(err) {
+      alert('Couldn\'t read that file. Make sure it\'s a valid JSON backup.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
 
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
