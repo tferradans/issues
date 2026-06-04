@@ -396,7 +396,7 @@ function renderCard(i) {
 
   const log = i.log||[];
   const exp = state.expandedLogs[i.id];
-  const logHtml = log.length ? `<div class="log-section"><div class="log-toggle" onclick="toggleLog('${i.id}')"><i class="ti ti-chevron-${exp?'down':'right'}" style="font-size:13px"></i>history (${log.length})</div>${exp?`<ul class="log-list">${log.slice(0,50).map(l=>`<li><span class="log-tag ${l.type==='tripped'?'tripped':l.type==='came-up'?'came-up':'reset'}">${l.type==='tripped'?'dropped':l.type==='came-up'?'came up':'reset'}</span><span class="log-when">${fmtDateTime(l.ts)}</span></li>`).join('')}</ul>`:''}</div>` : '';
+  const logHtml = log.length ? `<div class="log-section"><div class="log-toggle" onclick="toggleLog('${i.id}')"><i class="ti ti-chevron-${exp?'down':'right'}" style="font-size:13px"></i>history (${log.length})</div>${exp?`<ul class="log-list">${log.slice(0,50).map(l=>`<li style="flex-direction:column;align-items:flex-start;gap:2px"><div style="display:flex;gap:8px;align-items:baseline"><span class="log-tag ${l.type==='tripped'?'tripped':l.type==='came-up'?'came-up':'reset'}">${l.type==='tripped'?'dropped':l.type==='came-up'?'came up':'reset'}</span><span class="log-when">${fmtDateTime(l.ts)}</span></div>${l.note?`<div style="font-size:13px;color:var(--text2);padding-left:2px">${esc(l.note)}</div>`:''}</li>`).join('')}</ul>`:''}</div>` : '';
 
   return `<div class="${cls}"><div class="card-top"><div class="live-dot ${i.live?'live':''}" onclick="toggleLive('${i.id}')"></div><div class="card-main"><div class="card-title">${esc(i.title)}</div>${i.context?`<div class="card-context">${esc(i.context)}</div>`:''}</div><div class="card-right">${badge}<button class="icon-btn" onclick="editIssue('${i.id}')" aria-label="edit"><i class="ti ti-edit"></i></button><button class="icon-btn" onclick="deleteIssue('${i.id}')" aria-label="delete"><i class="ti ti-trash"></i></button></div></div>${pairs?`<div class="pairs">${pairs}</div>`:''}${logHtml}</div>`;
 }
@@ -407,10 +407,52 @@ function toggleLog(id) { state.expandedLogs[id]=!state.expandedLogs[id]; render(
 function resetTimer(id) {
   const i = state.issues.find(x=>x.id===id);
   if(!i||!i.timer) return;
+  showResetPrompt(i);
+}
+
+function showResetPrompt(issue) {
+  const existing = document.getElementById('reset-prompt');
+  if (existing) existing.remove();
+
+  const type = issue.timer.type;
+  const label = type === 'countup' ? 'mark it came up' : 'reset timer';
+  const placeholder = type === 'countup' ? 'e.g. came up again, didn\'t smooth it over this time' : 'e.g. addressed it, still unresolved, punted again...';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'reset-prompt';
+  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0 0 env(safe-area-inset-bottom,0)`;
+  overlay.innerHTML = `
+    <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:20px 16px 28px;width:100%;max-width:600px;box-shadow:0 -4px 24px rgba(0,0,0,0.15)">
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">${esc(issue.title)}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:14px">${label}</div>
+      <textarea id="reset-note" placeholder="${placeholder}" style="width:100%;min-height:72px;resize:vertical;background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;color:var(--text)"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button onclick="dismissResetPrompt()" style="flex:1;justify-content:center;padding:11px">cancel</button>
+        <button onclick="confirmReset('${issue.id}')" class="primary" style="flex:1;justify-content:center;padding:11px">${label}</button>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if(e.target===overlay) dismissResetPrompt(); });
+  document.body.appendChild(overlay);
+  document.getElementById('reset-note').focus();
+}
+
+function dismissResetPrompt() {
+  const p = document.getElementById('reset-prompt');
+  if (p) p.remove();
+}
+
+function confirmReset(id) {
+  const i = state.issues.find(x=>x.id===id);
+  if(!i||!i.timer) return;
+  const note = (document.getElementById('reset-note').value||'').trim();
   const now = Date.now();
-  (i.log=i.log||[]).unshift({ type: i.timer.type==='countup'?'came-up':'reset', ts: now });
+  const entry = { type: i.timer.type==='countup'?'came-up':'reset', ts: now };
+  if (note) entry.note = note;
+  (i.log=i.log||[]).unshift(entry);
   i.timer.lastReset = now;
   i.timer.trippedLogged = false;
+  dismissResetPrompt();
   save(); render();
 }
 
